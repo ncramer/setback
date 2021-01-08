@@ -17,7 +17,7 @@ export const Setback = {
     },
     dealerID: '0',
     playOrder: ['0'],
-    bids: [],
+    bids: {},
     bidWinnerId: null,
     discardTurnCount: 0,
   }),
@@ -47,9 +47,8 @@ export const Setback = {
           client: false,
         },
       },
-      endIf: getWinningBid,
+      endIf: isBiddingDone,
       //onEnd: getWinningBid,
-      //next: 'discard', //next: (G) => (G.pickBidSuit === true ? 'pickSuit' : 'play'),
     },
     pickSuit: {
       turn: {
@@ -92,8 +91,23 @@ function Deal(G, ctx) {
   ctx.events.endPhase();
 }
 
-function Bid(G, ctx, id) {
-  G.bids[ctx.currentPlayer] = id;
+function Bid(G, ctx, bidId) {
+  let bidRank = getBidRank(bidId);
+  G.bids[ctx.currentPlayer] = {
+    playerId: ctx.currentPlayer,
+    bidId: bidId,
+    rank: bidRank,
+    name: getBidName(bidId),
+  };
+
+  if (
+    !G.bids['winningBid'] ||
+    G.bids[ctx.currentPlayer].rank > G.bids['winningBid'].rank
+  ) {
+    G.bids['winningBid'] = G.bids[ctx.currentPlayer];
+  }
+
+  console.log(G.bids);
 }
 
 function PickSuit(G, ctx, suit) {
@@ -152,8 +166,21 @@ function setPlayOrder(G, nextPlayer) {
   ];
 }
 
-function getWinningBid(G, ctx) {
-  if (Object.keys(G.bids).length < 4) return false;
+function isBiddingDone(G) {
+  if (Object.keys(G.bids).length < 5 || !G.bids['winningBid'].rank)
+    // 4 player bids and winning bid entries
+    return false;
+  if (G.bids['winningBid'].rank < 5) {
+    // standard 2-5 bid
+    //G.playOrder = [G.bids['winningBid'].playerId];
+    return { next: 'pickSuit' };
+  } else {
+    //setPlayOrder(G, G.bids['winningBid'].playerId);
+    return { next: 'play' };
+  }
+}
+
+function getBid(G, ctx) {
   let bidRanks = getBidRanks();
   let bidRank = [];
 
@@ -188,10 +215,14 @@ function getWinningBid(G, ctx) {
     setPlayOrder(G, bidWinnerId);
     return { next: 'play' };
   }
+}
 
-  console.log(ctx.events);
-  console.log(G.playOrder);
-  console.log(G.pickBidSuit);
+function getBidRank(bidId) {
+  return getBidRanks().indexOf(bidId);
+}
+
+function getBidName(bidId) {
+  return bidId.substring(3);
 }
 
 function getBidRanks() {
