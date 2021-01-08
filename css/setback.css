@@ -1,0 +1,122 @@
+#board {
+  margin: auto;
+  width: 96%;
+  text-align: center;
+  border: 1px solid grey;
+  background-color: white;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.btn {
+  margin: 2px;
+}
+.card {
+  background-color: transparent;
+  border: none;
+}
+
+.grid {
+  /* 13 ranks 4 suits */
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  grid-template-rows: 4fr;
+  grid-gap: 0.5vw;
+  margin: 5px;
+}
+
+#hand {
+  width: 50%;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-gap: 0.5vw;
+  margin: auto;
+}
+
+iframe {
+  display: block;
+  width: 80vw;
+  height: 80vh;
+  margin: 0 auto;
+}
+
+#Usage {
+  grid-template-columns: 8fr 2fr 2fr 2fr;
+  grid-template-rows: 1;
+}
+
+#Straight {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1;
+}
+
+#BigQueens {
+  grid-template-columns: repeat(4, 1fr);
+  margin: 0 10vw;
+}
+
+#DeckContainer {
+  /* BigCardt 3fr on the right */
+  grid-template-columns: 10fr 3fr;
+  grid-template-rows: 1;
+}
+
+.newrow {
+  /* force a new grid row in examples */
+  grid-column-start: 1;
+}
+
+/* card-t {
+  width: 92px;
+  height: 134px;
+} */
+
+card-t img {
+  /*  can style IMG created by Custom Element */
+  border: 2px solid var(--cardborder, transparent);
+  border-radius: 8px;
+  /* filter: grayscale(); */
+}
+
+#Deck card-t:hover {
+  --cardborder: yellowgreen;
+}
+
+card-t:hover img {
+  box-shadow: 0 5px 15px rgba(145, 92, 182, 0.4);
+}
+card-t.selected img {
+  --cardborder: red;
+  box-shadow: 0 0 15px -5px red;
+}
+
+[queen] {
+  transform: rotate(5deg);
+}
+
+[ace] + [two],
+[two] + [three],
+[three] + [four],
+[four] + [five],
+[five] + [six],
+[six] + [seven],
+[seven] + [eight],
+[eight] + [nine],
+[nine] + [ten],
+[ten] + [jack],
+[jack] + [queen],
+[queen] + [king],
+[king] + [ace] {
+  /* two follows ace, three follows two etc. */
+  /* testing card order and easy CSS selection */
+  --cardborder: darkgreen;
+  filter: unset;
+}
+
+.notfullversion {
+  /* margin: 10vh 0; */
+}
+
+.fullversion {
+  display: none;
+}
