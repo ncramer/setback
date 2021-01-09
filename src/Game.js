@@ -1,6 +1,7 @@
 import { INVALID_MOVE } from 'boardgame.io/core';
 import { PlayerView } from 'boardgame.io/core';
 import { TurnOrder } from 'boardgame.io/core';
+import { ActivePlayers } from 'boardgame.io/core';
 import { deck } from './Deck.js';
 
 export const Setback = {
@@ -16,15 +17,11 @@ export const Setback = {
       '3': { hand: [] },
     },
     dealerID: '0',
-    playOrder: ['0'],
     bids: {},
     bidWinnerId: null,
     discardTurnCount: 0,
   }),
   //playerView: PlayerView.STRIP_SECRETS,
-  turn: {
-    order: TurnOrder.CUSTOM_FROM('playOrder'),
-  },
   phases: {
     deal: {
       start: true,
@@ -38,8 +35,19 @@ export const Setback = {
     },
     bid: {
       turn: {
-        moveLimit: 1,
-        order: TurnOrder.CUSTOM_FROM('playOrder'),
+        stages: {
+          pickSuit: {
+            moves: { PickSuit },
+          },
+          discard: {
+            moves: {
+              Discard: {
+                move: Discard,
+                client: false,
+              },
+            },
+          },
+        },
       },
       moves: {
         Bid: {
@@ -47,32 +55,11 @@ export const Setback = {
           client: false,
         },
       },
-      endIf: isBiddingDone,
-      //onEnd: getWinningBid,
-    },
-    pickSuit: {
-      turn: {
-        moveLimit: 1,
-        order: TurnOrder.CUSTOM_FROM('playOrder'),
-      },
-      moves: { PickSuit },
-      next: 'discard',
-    },
-    discard: {
-      turn: {
-        moveLimit: 1,
-        order: TurnOrder.CUSTOM_FROM('playOrder'),
-      },
-      moves: {
-        Discard: {
-          move: Discard,
-          client: false,
-        },
-      },
-      endIf: (G) => G.discardTurnCount >= 4,
-      next: 'play',
     },
     play: {
+      onBegin: (G, ctx) => {
+        ctx.events.endTurn({ next: G.bidWinnerId });
+      },
       moves: { PlayCard },
     },
   },
@@ -87,11 +74,12 @@ function Deal(G, ctx) {
   G.players['2'].hand = G.deck.getCards(6);
   G.players['3'].hand = G.deck.getCards(6);
   //  G.deck.deal(6, [G.players.0]);
-  setPlayOrder(G, G.dealerID + 1);
+  //setPlayOrder(G, G.dealerID + 1);
   ctx.events.endPhase();
 }
 
 function Bid(G, ctx, bidId) {
+  console.log('Player bid ' + ctx.currentPlayer);
   let bidRank = getBidRank(bidId);
   G.bids[ctx.currentPlayer] = {
     playerId: ctx.currentPlayer,
@@ -101,29 +89,39 @@ function Bid(G, ctx, bidId) {
   };
 
   if (
-    !G.bids['winningBid'] ||
-    G.bids[ctx.currentPlayer].rank > G.bids['winningBid'].rank
+    !G.bidWinnerId ||
+    G.bids[ctx.currentPlayer].rank > G.bids[G.bidWinnerId].rank
   ) {
-    G.bids['winningBid'] = G.bids[ctx.currentPlayer];
+    G.bidWinnerId = ctx.currentPlayer;
   }
 
-  console.log(G.bids);
+  ctx.events.endTurn();
+
+  if (Object.keys(G.bids).length >= 4) {
+    ctx.events.setActivePlayers({
+      value: {
+        [G.bidWinnerId]: { stage: 'pickSuit', moveLimit: 1 },
+      },
+    });
+  }
 }
 
 function PickSuit(G, ctx, suit) {
-  G.trumpSuit = suit;
-  G.bid = G.bid + ' ' + suit;
-  console.log(G.trumpSuit);
-  ctx.events.endPhase();
+  G.bids[ctx.playerID].name = G.bids[ctx.playerID].name + ' ' + suit;
+  ctx.events.setActivePlayers({ all: 'discard', moveLimit: 1 });
 }
 
 function Discard(G, ctx, discardIds) {
   for (let i = 0; i < discardIds.length; i++) {
     let discardId = discardIds[i];
-    G.discardPile.push(G.players[ctx.currentPlayer].hand[discardId]);
-    G.players[ctx.currentPlayer].hand[discardId] = G.deck.getCard().pop();
+    G.discardPile.push(G.players[ctx.playerID].hand[discardId]);
+    G.players[ctx.playerID].hand[discardId] = G.deck.getCard().pop();
   }
   G.discardTurnCount = G.discardTurnCount + 1;
+
+  if (G.discardTurnCount >= 4) {
+    ctx.events.endPhase();
+  }
 }
 
 function PlayCard() {
@@ -157,20 +155,19 @@ deck.click(function (card) {
   });*/
 }
 
-function setPlayOrder(G, nextPlayer) {
+/*function setPlayOrder(G, nextPlayer) {
   G.playOrder = [
     Number(nextPlayer).toString(),
     ((Number(nextPlayer) + 1) % 4).toString(),
     ((Number(nextPlayer) + 2) % 4).toString(),
     ((Number(nextPlayer) + 3) % 4).toString(),
   ];
-}
+}*/
 
 function isBiddingDone(G) {
-  if (Object.keys(G.bids).length < 5 || !G.bids['winningBid'].rank)
-    // 4 player bids and winning bid entries
+  if (Object.keys(G.bids).length < 4 || !G.bids[G.bidWinnerId].rank)
     return false;
-  if (G.bids['winningBid'].rank < 5) {
+  if (G.bids[G.bidWinnerId].rank < 5) {
     // standard 2-5 bid
     //G.playOrder = [G.bids['winningBid'].playerId];
     return { next: 'pickSuit' };

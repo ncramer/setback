@@ -2,7 +2,6 @@ import { Client } from 'boardgame.io/client';
 import { Setback } from './Game';
 import { Local } from 'boardgame.io/multiplayer';
 import { htmlInterfaceActions } from './Setup';
-/* eslint-env jquery */
 
 class SetbackClient {
   constructor(rootElement, { playerID } = {}) {
@@ -40,12 +39,15 @@ class SetbackClient {
           this.rootElement.querySelectorAll('.selected').forEach((scard) => {
             discardIds.push(Number(scard.id.substring(5, 4)));
           });
-          this.client.moves.Discard(discardIds);
+          this.client.moves.Discard(this.client.playerID, discardIds);
           this.rootElement.querySelector('#discardContainer').style.display =
             'none';
           break;
-        case 'Spades' || 'Hearts' || 'Diamonds' || 'Clubs':
-          this.client.moves.PickSuit(id);
+        case 'Spades':
+        case 'Hearts':
+        case 'Diamonds':
+        case 'Clubs':
+          this.client.moves.PickSuit(this.client.playerID, id);
           this.rootElement.querySelector('#suitContainer').style.display =
             'none';
           break;
@@ -68,20 +70,42 @@ class SetbackClient {
 
     const boardEl = this.rootElement.querySelector('#board');
     const messageEl = this.rootElement.querySelector('#message');
-    if (this.client.playerID === state.ctx.currentPlayer) {
+    if (state.ctx.activePlayers) {
+      if (state.ctx.activePlayers[this.client.playerID]) {
+        messageEl.innerHTML = `It is your turn to ${
+          state.ctx.activePlayers[this.client.playerID]
+        }!`;
+        switch (state.ctx.activePlayers[this.client.playerID]) {
+          case 'pickSuit':
+            this.rootElement.querySelector('#suitContainer').style.display =
+              'block';
+            break;
+          case 'discard':
+            messageEl.innerHTML = `The bid is ${
+              state.G.bids[state.G.bidWinnerId].name
+            } by player ${state.G.bidWinnerId}`;
+            this.rootElement.querySelector('#discardContainer').style.display =
+              'block';
+            break;
+
+          default:
+            messageEl.innerHTML = 'Invalid stage';
+            break;
+        }
+      } else {
+        let waitingMessage = '';
+        for (let player in state.ctx.activePlayers) {
+          waitingMessage =
+            waitingMessage +
+            `Waiting on player ${player} to ${state.ctx.activePlayers[player]}..<br/>`;
+        }
+        messageEl.innerHTML = waitingMessage;
+      }
+    } else if (this.client.playerID === state.ctx.currentPlayer) {
       messageEl.innerHTML = `It is your turn to ${state.ctx.phase}!`;
       switch (state.ctx.phase) {
         case 'deal':
           this.rootElement.querySelector('#dealContainer').style.display =
-            'block';
-          break;
-        case 'pickSuit':
-          this.rootElement.querySelector('#suitContainer').style.display =
-            'block';
-          break;
-        case 'discard':
-          messageEl.innerHTML = `The bid is ${state.G.bid} by player ${state.G.bidWinnerId}`;
-          this.rootElement.querySelector('#discardContainer').style.display =
             'block';
           break;
         case 'bid':
@@ -89,11 +113,11 @@ class SetbackClient {
             'block';
           break;
         default:
-          messageEl.innerHTML = 'Invalid state';
+          messageEl.innerHTML = 'Invalid phase';
           break;
       }
     } else {
-      messageEl.innerHTML = `Waiting on ${state.ctx.currentPlayer} to ${state.ctx.phase}..`;
+      messageEl.innerHTML = `Waiting on player ${state.ctx.currentPlayer} to ${state.ctx.phase}..`;
     }
     this.updateHand(state);
   }
