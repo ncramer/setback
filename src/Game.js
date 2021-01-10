@@ -60,7 +60,7 @@ export const Setback = {
     play: {
       turn: {
         order: {
-          first: (G, ctx) => G.bidWinnerId,
+          first: (G, ctx) => Number(G.bidWinnerId),
         },
       },
       onBegin: (G, ctx) => {
@@ -117,6 +117,7 @@ function PickSuit(G, ctx, suit) {
 }
 
 function Discard(G, ctx, discardIds) {
+  console.log(discardIds);
   for (let i = 0; i < discardIds.length; i++) {
     let discardId = discardIds[i];
     G.discardPile.push(G.players[ctx.playerID].hand[discardId]);

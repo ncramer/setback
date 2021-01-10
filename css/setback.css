@@ -1,5 +1,5 @@
 #app {
-  width: 90%;
+  width: 50%;
   margin: auto;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -79,15 +79,21 @@
 #actions {
   grid-column: 1;
   grid-row: 2;
+}
+
+.inputContainer {
   border: 2px solid #ecf39e;
   background: white;
   border-radius: 4px;
 }
 
-#message {
+#messageContainer {
   grid-column: 1;
   grid-row: 1;
-  border: 2px solid #ecf39e;
+}
+
+.message {
+≈  border: 2px solid #ecf39e;
   background: white;
   border-radius: 4px;
 }
@@ -150,16 +156,14 @@ card-t img {
   /* filter: grayscale(); */
 }
 
-#Deck card-t:hover {
-  --cardborder: yellowgreen;
+#hand card-t img {
 }
 
-card-t:hover img {
-  box-shadow: 0 5px 15px rgba(145, 92, 182, 0.4);
+#hand card-t:hover img {
+  --cardborder: #ecf39e;
 }
-card-t.selected img {
+#hand card-t.selected img {
   --cardborder: red;
-  box-shadow: 0 0 15px -5px red;
 }
 
 [queen] {

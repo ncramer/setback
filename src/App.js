@@ -22,7 +22,7 @@ class SetbackClient {
     this.rootElement.innerHTML = `
       <div id='board'>
       ${htmlInterfaceCardTrick}
-      <div id='message'></div>
+      <div id='messageContainer'><div id='message' class='message'></div></div>
       ${htmlInterfaceActions}
       <div id='hand'></div>      
       </div>
@@ -43,7 +43,7 @@ class SetbackClient {
           this.rootElement.querySelectorAll('.selected').forEach((scard) => {
             discardIds.push(Number(scard.id.substring(5, 4)));
           });
-          this.client.moves.Discard(this.client.playerID, discardIds);
+          this.client.moves.Discard(discardIds);
           this.rootElement.querySelector('#discardContainer').style.display =
             'none';
           break;
@@ -51,7 +51,7 @@ class SetbackClient {
         case 'Hearts':
         case 'Diamonds':
         case 'Clubs':
-          this.client.moves.PickSuit(this.client.playerID, id);
+          this.client.moves.PickSuit(id);
           this.rootElement.querySelector('#suitContainer').style.display =
             'none';
           break;
