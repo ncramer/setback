@@ -55,8 +55,14 @@ export const Setback = {
           client: false,
         },
       },
+      next: 'play',
     },
     play: {
+      turn: {
+        order: {
+          first: (G, ctx) => G.bidWinnerId,
+        },
+      },
       onBegin: (G, ctx) => {
         ctx.events.endTurn({ next: G.bidWinnerId });
       },
@@ -79,7 +85,6 @@ function Deal(G, ctx) {
 }
 
 function Bid(G, ctx, bidId) {
-  console.log('Player bid ' + ctx.currentPlayer);
   let bidRank = getBidRank(bidId);
   G.bids[ctx.currentPlayer] = {
     playerId: ctx.currentPlayer,

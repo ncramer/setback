@@ -1,9 +1,38 @@
-#board {
+#app {
+  width: 90%;
   margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  grid-gap: 1vw;
+}
+
+#client0 {
+  grid-column: 1;
+  grid-row: 1;
+}
+#client1 {
+  grid-column: 2;
+  grid-row: 1;
+}
+#client2 {
+  grid-column: 1;
+  grid-row: 2;
+}
+#client3 {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-gap: 0.5vw;
   width: 96%;
   text-align: center;
   border: 1px solid grey;
-  background-color: white;
+  background: radial-gradient(#31572c, #132a13);
   border-radius: 4px;
   padding: 10px;
 }
@@ -20,17 +49,60 @@
   /* 13 ranks 4 suits */
   display: grid;
   grid-template-columns: repeat(13, 1fr);
-  grid-template-rows: 4fr;
+  grid-template-rows: 3fr;
   grid-gap: 0.5vw;
   margin: 5px;
 }
 
 #hand {
-  width: 50%;
+  grid-column: 1/3;
+  grid-row: 3;
+  border: 1px solid #ecf39e;
+  padding: 10px;
+  border-radius: 8px;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-gap: 0.5vw;
-  margin: auto;
+}
+
+#trick {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  border: 1px solid #ecf39e;
+  border-radius: 8px;
+  padding: 1vw;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  grid-gap: 0.5vw;
+}
+#actions {
+  grid-column: 1;
+  grid-row: 2;
+  border: 2px solid #ecf39e;
+  background: white;
+  border-radius: 4px;
+}
+
+#message {
+  grid-column: 1;
+  grid-row: 1;
+  border: 2px solid #ecf39e;
+  background: white;
+  border-radius: 4px;
+}
+
+#southCard {
+  grid-area: 3 / 2 / 5 / 3;
+}
+#westCard {
+  grid-area: 2 / 1 / 4 / 2;
+}
+#northCard {
+  grid-area: 1 / 2 / 3 / 3;
+}
+#eastCard {
+  grid-area: 2 / 3 / 4 / 4;
 }
 
 iframe {

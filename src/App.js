@@ -1,7 +1,7 @@
 import { Client } from 'boardgame.io/client';
 import { Setback } from './Game';
 import { Local } from 'boardgame.io/multiplayer';
-import { htmlInterfaceActions } from './Setup';
+import { htmlInterfaceActions, htmlInterfaceCardTrick } from './Setup';
 
 class SetbackClient {
   constructor(rootElement, { playerID } = {}) {
@@ -20,8 +20,12 @@ class SetbackClient {
 
   createTable(playerID) {
     this.rootElement.innerHTML = `
-      <div id='board'><div id='message'></div>${htmlInterfaceActions}</div>
-      <div id='hand'></div>
+      <div id='board'>
+      ${htmlInterfaceCardTrick}
+      <div id='message'></div>
+      ${htmlInterfaceActions}
+      <div id='hand'></div>      
+      </div>
     `;
   }
 
@@ -150,6 +154,8 @@ const playerIDs = ['0', '1', '2', '3'];
 
 const clients = playerIDs.map((playerID) => {
   const rootElement = document.createElement('div');
+  rootElement.setAttribute('id', 'client' + playerID);
+
   appElement.append(rootElement);
   return new SetbackClient(rootElement, { playerID });
 });

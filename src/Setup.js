@@ -1,3 +1,11 @@
+export const htmlInterfaceCardTrick = `
+<div id="trick">
+<card-t id="westCard" class="hand-card" suit="Hearts" rank="1"></card-t>
+<card-t id="northCard" class="hand-card" suit="Spades" rank="1"></card-t>
+<card-t id="southCard" class="hand-card" suit="Clubs" rank="1"></card-t>
+<card-t id="eastCard" class="hand-card" suit="Diamonds" rank="1"></card-t>
+</div>
+`;
 export const htmlInterfaceActions = `
 <div id="actions">
   <div id="dealContainer" style="display: none;" class="inputContainer">

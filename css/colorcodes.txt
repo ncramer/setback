@@ -1,0 +1,5 @@
+--phthalo-green: #132a13;
+--hunter-green: #31572c;
+--sap-green: #4f772d;
+--olivine: #90a955;
+--key-lime: #ecf39e;
