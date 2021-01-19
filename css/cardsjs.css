@@ -11,6 +11,7 @@ body {
   margin: 20px auto;
   border: solid 1px black;
   font-family: arial, sans-serif;
+  font-size: 4vmin;
   padding: 50px;
 }
 #buttons {

@@ -22,8 +22,10 @@ class SetbackClient {
     this.rootElement.innerHTML = `
       <div id='board'>
       ${htmlInterfaceCardTrick}
+      <div id='commsContainer'>
       <div id='messageContainer'><div id='message' class='message'></div></div>
       ${htmlInterfaceActions}
+      </div>
       <div id='hand'></div>      
       </div>
     `;
@@ -37,6 +39,21 @@ class SetbackClient {
           this.client.moves.Deal();
           this.rootElement.querySelector('#dealContainer').style.display =
             'none';
+          break;
+        case 'playCard':
+          let cardIds = [];
+          this.rootElement.querySelectorAll('.selected').forEach((scard) => {
+            cardIds.push(Number(scard.id.substring(5, 4)));
+          });
+          if (cardIds.length === 1) {
+            this.client.moves.PlayCard(cardIds[0]);
+            this.rootElement.querySelector('#playCardContainer').style.display =
+              'none';
+          } else {
+            const messageEl = this.rootElement.querySelector('#message');
+            messageEl.innerHTML = 'Choose one card';
+          }
+
           break;
         case 'discard':
           let discardIds = [];
@@ -91,7 +108,6 @@ class SetbackClient {
             this.rootElement.querySelector('#discardContainer').style.display =
               'block';
             break;
-
           default:
             messageEl.innerHTML = 'Invalid stage';
             break;
@@ -116,6 +132,12 @@ class SetbackClient {
           this.rootElement.querySelector('#bidContainer').style.display =
             'block';
           break;
+        case 'play':
+          messageEl.innerHTML =
+            'Select a card and confirm by clicking the play card button.';
+          this.rootElement.querySelector('#playCardContainer').style.display =
+            'block';
+          break;
         default:
           messageEl.innerHTML = 'Invalid phase';
           break;
@@ -123,7 +145,62 @@ class SetbackClient {
     } else {
       messageEl.innerHTML = `Waiting on player ${state.ctx.currentPlayer} to ${state.ctx.phase}..`;
     }
+    switch (state.ctx.phase) {
+      case 'deal':
+        this.setTrickCard(state.G.dealerId, ' ', '0', '#F00', 'Dealer', '#000');
+        //this.setTrickCardMessage(state.G.dealerId, 'Dealer');
+        break;
+      case 'bid':
+        for (let bidId in state.G.bids) {
+          this.setTrickCardMessage(bidId, state.G.bids[bidId].name);
+        }
+        break;
+      case 'play':
+        for (let playerId in state.G.bids) {
+          if (state.G.trick[playerId])
+            this.setTrickCard(
+              playerId,
+              state.G.trick[playerId].suit,
+              state.G.trick[playerId].rank
+            );
+          else {
+            this.setTrickCardMessage(playerId, '');
+          }
+        }
+        break;
+      default:
+        break;
+    }
     this.updateHand(state);
+  }
+
+  setTrickCardMessage(playerId, message) {
+    let playerLocation = this.getPlayerLocation(playerId);
+    let containerId = '#' + playerLocation + 'CardContainer';
+    let container = this.rootElement.querySelector(containerId);
+    let messageEl = document.createElement('div');
+    messageEl.id = playerLocation + 'Card';
+    messageEl.classList.add('card');
+    messageEl.classList.add('message');
+    messageEl.classList.add('trickCardMessage');
+    messageEl.innerHTML = message;
+    console.log(containerId);
+    container.replaceChild(messageEl, container.childNodes[0]);
+  }
+
+  setTrickCard(playerId, suit, rank, backcolor, backtext, backtextcolor) {
+    let playerLocation = this.getPlayerLocation(playerId);
+    let containerId = '#' + playerLocation + 'CardContainer';
+    let container = this.rootElement.querySelector(containerId);
+    let card = document.createElement('card-t');
+    card.id = playerLocation + 'Card';
+    card.classList.add('trick-card');
+    card.rank = rank;
+    card.suit = suit;
+    card.backtext = backtext;
+    card.backcolor = backcolor;
+    card.backtextcolor = backtextcolor;
+    container.replaceChild(card, container.childNodes[0]);
   }
 
   updateHand(state) {
@@ -131,7 +208,11 @@ class SetbackClient {
     let handContent = '';
     let cards = state.G.players[this.client.playerID].hand;
     for (let key in Object.keys(cards)) {
-      handContent += `<card-t id="card${key}" class="hand-card" suit="${cards[key].suit}" rank="${cards[key].rank}"></card-t>`;
+      if (cards[key]) {
+        handContent += `<card-t id="card${key}" class="hand-card" suit="${cards[key].suit}" rank="${cards[key].rank}"></card-t>`;
+      } else {
+        handContent += `<card-t id="card${key}" class="hand-card" suit backtext="" rank="0"></card-t>`;
+      }
     }
     handEl.innerHTML = handContent;
     this.attachCardListeners();
@@ -146,6 +227,21 @@ class SetbackClient {
     selectedCards.forEach((scard) => {
       scard.onclick = handleCardClick;
     });
+  }
+  getPlayerLocation(playerId) {
+    console.log(playerId + ' ' + (Number(this.client.playerID) % 4));
+    if (Number(playerId) === Number(this.client.playerID) % 4) {
+      return 'south';
+    } else if (Number(playerId) === (Number(this.client.playerID) + 1) % 4) {
+      return 'west';
+    } else if (Number(playerId) === (Number(this.client.playerID) + 2) % 4) {
+      return 'north';
+    } else if (Number(playerId) === (Number(this.client.playerID) + 3) % 4) {
+      return 'east';
+    } else {
+      console.log('Failed to locate card identifier');
+      //return '#southCard';
+    }
   }
 }
 

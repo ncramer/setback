@@ -1,18 +1,23 @@
 export const htmlInterfaceCardTrick = `
 <div id="trick">
-<card-t id="westCard" class="hand-card" suit="Hearts" rank="1"></card-t>
-<card-t id="northCard" class="hand-card" suit="Spades" rank="1"></card-t>
-<card-t id="southCard" class="hand-card" suit="Clubs" rank="1"></card-t>
-<card-t id="eastCard" class="hand-card" suit="Diamonds" rank="1"></card-t>
+<div id="westCardContainer"><card-t id="westCard" class="trick-card" suit="" rank="0" backColor="#31572c" backText="West" backColorText="#132a13"></card-t></div>
+<div id="northCardContainer"><card-t id="northCard" class="trick-card" suit="" rank="0" backColor="#31572c" backText="North" backColorText="#132a13"></card-t></div>
+<div id="southCardContainer"><card-t id="southCard" class="trick-card" suit="" rank="0" backColor="#31572c" backText="South" backColorText="#132a13"></card-t></div>
+<div id="eastCardContainer"><card-t id="eastCard" class="trick-card" suit="" rank="0" backColor="#31572c" backText="East" backColorText="#132a13"></card-t></div>
 </div>
 `;
 export const htmlInterfaceActions = `
 <div id="actions">
-  <div id="dealContainer" style="display: none;" class="inputContainer">
-    <button type="button" class="btn btn-outline-secondary btn-sm" id="deal">
-      Deal
-    </button>
-  </div>
+<div id="dealContainer" style="display: none;" class="inputContainer">
+<button type="button" class="btn btn-outline-secondary btn-sm" id="deal">
+  Deal
+</button>
+</div>
+<div id="playCardContainer" style="display: none;" class="inputContainer">
+<button type="button" class="btn btn-outline-secondary btn-sm" id="playCard">
+  Play
+</button>
+</div>
 
   <div id="suitContainer" style="display: none;" class="inputContainer">
     <button type="button" class="btn btn-outline-secondary btn-sm" id="Spades">

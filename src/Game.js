@@ -16,8 +16,9 @@ export const Setback = {
       '2': { hand: [] },
       '3': { hand: [] },
     },
-    dealerID: '0',
+    dealerId: '0',
     bids: {},
+    trick: {},
     bidWinnerId: null,
     discardTurnCount: 0,
   }),
@@ -59,12 +60,11 @@ export const Setback = {
     },
     play: {
       turn: {
+        moveLimit: 1,
         order: {
           first: (G, ctx) => Number(G.bidWinnerId),
+          next: (G, ctx) => (ctx.playOrderPos + 1) % ctx.numPlayers,
         },
-      },
-      onBegin: (G, ctx) => {
-        ctx.events.endTurn({ next: G.bidWinnerId });
       },
       moves: { PlayCard },
     },
@@ -117,7 +117,6 @@ function PickSuit(G, ctx, suit) {
 }
 
 function Discard(G, ctx, discardIds) {
-  console.log(discardIds);
   for (let i = 0; i < discardIds.length; i++) {
     let discardId = discardIds[i];
     G.discardPile.push(G.players[ctx.playerID].hand[discardId]);
@@ -130,45 +129,17 @@ function Discard(G, ctx, discardIds) {
   }
 }
 
-function PlayCard() {
-  /*
-  
-      function () {
-      //This is a callback function, called when the dealing
-      //is done.
-      G.discardPile.addCard(G.deck.topCard());
-      G.discardPile.render();
+function PlayCard(G, ctx, cardId) {
+  console.log(cardId);
+  G.trick[ctx.playerID] = G.players[ctx.playerID].hand[cardId];
+  G.players[ctx.playerID].hand[cardId] = null;
+  if (Object.keys(G.trick).length >= 4) {
+    for (let key in Object.keys(G.trick)) {
+      G.discardPile.push(G.trick[key]);
+      delete G.trick[key];
     }
-deck.click(function (card) {
-    if (card === deck.topCard()) {
-      hands.player1.addCard(deck.topCard());
-      hands.player1.render();
-    }
-  });
-
-  //Finally, when you click a card in your hand, if it's
-  //the same suit or rank as the top card of the discard pile
-  //then it's added to it
-  hands.player1.click(function (card) {
-    if (
-      card.suit === discardPile.topCard().suit ||
-      card.rank === discardPile.topCard().rank
-    ) {
-      hands.player1.addCard(card);
-      discardPile.render();
-      hands.player1.render();
-    }
-  });*/
+  }
 }
-
-/*function setPlayOrder(G, nextPlayer) {
-  G.playOrder = [
-    Number(nextPlayer).toString(),
-    ((Number(nextPlayer) + 1) % 4).toString(),
-    ((Number(nextPlayer) + 2) % 4).toString(),
-    ((Number(nextPlayer) + 3) % 4).toString(),
-  ];
-}*/
 
 function isBiddingDone(G) {
   if (Object.keys(G.bids).length < 4 || !G.bids[G.bidWinnerId].rank)

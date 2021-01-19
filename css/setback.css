@@ -1,5 +1,7 @@
+body {
+  font-size: 3vmin;
+}
 #app {
-  width: 50%;
   margin: auto;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -58,7 +60,8 @@
   grid-column: 1/3;
   grid-row: 3;
   border: 1px solid #ecf39e;
-  padding: 10px;
+  padding: 1vh;
+  padding-right: 1.5vh;
   border-radius: 8px;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -70,44 +73,51 @@
   grid-row: 1 / 3;
   border: 1px solid #ecf39e;
   border-radius: 8px;
-  padding: 1vw;
+  padding: 1vh;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(4, 1fr);
   grid-gap: 0.5vw;
 }
-#actions {
+#commsContainer {
   grid-column: 1;
-  grid-row: 2;
+  grid-row: 1/3;
 }
 
 .inputContainer {
   border: 2px solid #ecf39e;
   background: white;
   border-radius: 4px;
-}
-
-#messageContainer {
-  grid-column: 1;
-  grid-row: 1;
+  padding: 1vh;
+  margin-top: 1vh;
 }
 
 .message {
-≈  border: 2px solid #ecf39e;
+  border: 2px solid #ecf39e;
   background: white;
   border-radius: 4px;
 }
 
-#southCard {
+.trickCardMessage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1em;
+
+  width: 100%;
+  height: 100%;
+}
+
+#southCardContainer {
   grid-area: 3 / 2 / 5 / 3;
 }
-#westCard {
+#westCardContainer {
   grid-area: 2 / 1 / 4 / 2;
 }
-#northCard {
+#northCardContainer {
   grid-area: 1 / 2 / 3 / 3;
 }
-#eastCard {
+#eastCardContainer {
   grid-area: 2 / 3 / 4 / 4;
 }
 
