@@ -184,7 +184,6 @@ class SetbackClient {
     messageEl.classList.add('message');
     messageEl.classList.add('trickCardMessage');
     messageEl.innerHTML = message;
-    console.log(containerId);
     container.replaceChild(messageEl, container.childNodes[0]);
   }
 
@@ -211,7 +210,7 @@ class SetbackClient {
       if (cards[key]) {
         handContent += `<card-t id="card${key}" class="hand-card" suit="${cards[key].suit}" rank="${cards[key].rank}"></card-t>`;
       } else {
-        handContent += `<card-t id="card${key}" class="hand-card" suit backtext="" rank="0"></card-t>`;
+        //handContent += `<card-t id="card${key}" class="hand-card" suit backtext="" rank="0"></card-t>`;
       }
     }
     handEl.innerHTML = handContent;
@@ -229,7 +228,6 @@ class SetbackClient {
     });
   }
   getPlayerLocation(playerId) {
-    console.log(playerId + ' ' + (Number(this.client.playerID) % 4));
     if (Number(playerId) === Number(this.client.playerID) % 4) {
       return 'south';
     } else if (Number(playerId) === (Number(this.client.playerID) + 1) % 4) {

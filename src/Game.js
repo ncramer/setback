@@ -19,6 +19,7 @@ export const Setback = {
     dealerId: '0',
     bids: {},
     trick: {},
+    tricks: { '0': [], '1': [] },
     bidWinnerId: null,
     discardTurnCount: 0,
   }),
@@ -112,6 +113,7 @@ function Bid(G, ctx, bidId) {
 }
 
 function PickSuit(G, ctx, suit) {
+  G.trumpSuit = suit;
   G.bids[ctx.playerID].name = G.bids[ctx.playerID].name + ' ' + suit;
   ctx.events.setActivePlayers({ all: 'discard', moveLimit: 1 });
 }
@@ -130,15 +132,54 @@ function Discard(G, ctx, discardIds) {
 }
 
 function PlayCard(G, ctx, cardId) {
-  console.log(cardId);
+  if (!G.leadSuit) G.leadSuit = G.players[ctx.playerID].hand[cardId].suit;
   G.trick[ctx.playerID] = G.players[ctx.playerID].hand[cardId];
   G.players[ctx.playerID].hand[cardId] = null;
   if (Object.keys(G.trick).length >= 4) {
+    let trickWinner = getTrickWinner(G);
     for (let key in Object.keys(G.trick)) {
-      G.discardPile.push(G.trick[key]);
-      delete G.trick[key];
+      G.tricks[trickWinner].push(G.trick[key]);
     }
+    G.trick = {};
   }
+}
+
+function getTrickWinner(G) {
+  let winnerId = null;
+  let winningValue = 0;
+  for (let key in Object.keys(G.trick)) {
+    let cardValue = 0;
+    let card = G.trick[key];
+    switch (card.rank) {
+      case '1':
+        cardValue = 14;
+        break;
+      case 'Jack':
+        cardValue = 11;
+        break;
+      case 'Queen':
+        cardValue = 12;
+        break;
+      case 'King':
+        cardValue = 13;
+        break;
+      default:
+        cardValue = Number(card.rank);
+        break;
+    }
+    if (card.suit === G.trumpSuit) {
+      cardValue = cardValue + 28;
+    } else if (card.suit === G.leadSuit) {
+      cardValue = cardValue + 14;
+    }
+    if (cardValue > winningValue) {
+      winningValue = cardValue;
+      winnerId = key;
+    }
+
+    console.log(key + ': ' + cardValue + ' : ' + winnerId);
+  }
+  return winnerId % 2;
 }
 
 function isBiddingDone(G) {
