@@ -53,7 +53,6 @@ class SetbackClient {
             const messageEl = this.rootElement.querySelector('#message');
             messageEl.innerHTML = 'Choose one card';
           }
-
           break;
         case 'discard':
           let discardIds = [];
@@ -62,6 +61,11 @@ class SetbackClient {
           });
           this.client.moves.Discard(discardIds);
           this.rootElement.querySelector('#discardContainer').style.display =
+            'none';
+          break;
+        case 'clearTrick':
+          this.client.moves.ClearTrick();
+          this.rootElement.querySelector('#clearContainer').style.display =
             'none';
           break;
         case 'Spades':
@@ -101,6 +105,12 @@ class SetbackClient {
             this.rootElement.querySelector('#suitContainer').style.display =
               'block';
             break;
+          case 'clearTrick':
+            messageEl.innerHTML = `You took the trick. Clear to contine play.`;
+
+            this.rootElement.querySelector('#clearContainer').style.display =
+              'block';
+            break;
           case 'discard':
             messageEl.innerHTML = `The bid is ${
               state.G.bids[state.G.bidWinnerId].name
@@ -117,7 +127,9 @@ class SetbackClient {
         for (let player in state.ctx.activePlayers) {
           waitingMessage =
             waitingMessage +
-            `Waiting on player ${player} to ${state.ctx.activePlayers[player]}..<br/>`;
+            `Waiting on player ${player} to ${unCamelCase(
+              state.ctx.activePlayers[player]
+            )}..<br/>`;
         }
         messageEl.innerHTML = waitingMessage;
       }
@@ -143,7 +155,9 @@ class SetbackClient {
           break;
       }
     } else {
-      messageEl.innerHTML = `Waiting on player ${state.ctx.currentPlayer} to ${state.ctx.phase}..`;
+      messageEl.innerHTML = `Waiting on player ${
+        state.ctx.currentPlayer
+      } to ${unCamelCase(state.ctx.phase)}..`;
     }
     switch (state.ctx.phase) {
       case 'deal':
@@ -241,6 +255,14 @@ class SetbackClient {
       //return '#southCard';
     }
   }
+}
+
+function unCamelCase(str) {
+  if (str) {
+    str = str.replace(/([a-z\xE0-\xFF])([A-Z\xC0\xDF])/g, '$1 $2');
+    str = str.toLowerCase(); //add space between camelCase text
+  }
+  return str;
 }
 
 const appElement = document.getElementById('app');

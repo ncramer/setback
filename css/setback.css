@@ -1,5 +1,5 @@
 body {
-  font-size: 3vmin;
+  font-size: 1rem;
 }
 #app {
   margin: auto;
@@ -59,19 +59,21 @@ body {
 #hand {
   grid-column: 1/3;
   grid-row: 3;
-  border: 1px solid #ecf39e;
+  border: 2px solid #f8f9fa;
   padding: 1vh;
-  padding-right: 1.5vh;
+  padding-left: 1.5vw;
+  padding-right: 2vw;
   border-radius: 8px;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-gap: 0.5vw;
+  min-height: 33%;
 }
 
 #trick {
   grid-column: 2;
   grid-row: 1 / 3;
-  border: 1px solid #ecf39e;
+  border: 2px solid #f8f9fa;
   border-radius: 8px;
   padding: 1vh;
   display: grid;
@@ -85,7 +87,7 @@ body {
 }
 
 .inputContainer {
-  border: 2px solid #ecf39e;
+  border: 2px solid #f8f9fa;
   background: white;
   border-radius: 4px;
   padding: 1vh;
@@ -93,7 +95,7 @@ body {
 }
 
 .message {
-  border: 2px solid #ecf39e;
+  border: 2px solid #f8f9fa;
   background: white;
   border-radius: 4px;
 }
@@ -170,7 +172,7 @@ card-t img {
 }
 
 #hand card-t:hover img {
-  --cardborder: #ecf39e;
+  --cardborder: #f8f9fa;
 }
 #hand card-t.selected img {
   --cardborder: red;

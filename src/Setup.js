@@ -13,6 +13,11 @@ export const htmlInterfaceActions = `
   Deal
 </button>
 </div>
+<div id="clearContainer" style="display: none;" class="inputContainer">
+<button type="button" class="btn btn-outline-secondary btn-sm" id="clearTrick">
+  Clear
+</button>
+</div>
 <div id="playCardContainer" style="display: none;" class="inputContainer">
 <button type="button" class="btn btn-outline-secondary btn-sm" id="playCard">
   Play

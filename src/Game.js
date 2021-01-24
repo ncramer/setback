@@ -18,6 +18,7 @@ export const Setback = {
     },
     dealerId: '0',
     bids: {},
+    playRound: 1,
     trick: {},
     tricks: { '0': [], '1': [] },
     bidWinnerId: null,
@@ -27,6 +28,11 @@ export const Setback = {
   phases: {
     deal: {
       start: true,
+      turn: {
+        order: {
+          first: (G, ctx) => Number(G.dealerId),
+        },
+      },
       moves: {
         Deal: {
           move: Deal,
@@ -61,13 +67,22 @@ export const Setback = {
     },
     play: {
       turn: {
-        moveLimit: 1,
         order: {
           first: (G, ctx) => Number(G.bidWinnerId),
-          next: (G, ctx) => (ctx.playOrderPos + 1) % ctx.numPlayers,
+          next: (G, ctx) => getNextPlayTurn(G, ctx),
+        },
+        stages: {
+          clearTrick: {
+            moves: {
+              ClearTrick: {
+                move: ClearTrick,
+              },
+            },
+          },
         },
       },
       moves: { PlayCard },
+      next: 'deal',
     },
   },
 };
@@ -80,6 +95,10 @@ function Deal(G, ctx) {
   G.players['1'].hand = G.deck.getCards(6);
   G.players['2'].hand = G.deck.getCards(6);
   G.players['3'].hand = G.deck.getCards(6);
+  G.playRound = 1;
+  G.discardTurnCount = 0;
+  G.trick = {};
+
   //  G.deck.deal(6, [G.players.0]);
   //setPlayOrder(G, G.dealerID + 1);
   ctx.events.endPhase();
@@ -114,8 +133,19 @@ function Bid(G, ctx, bidId) {
 
 function PickSuit(G, ctx, suit) {
   G.trumpSuit = suit;
-  G.bids[ctx.playerID].name = G.bids[ctx.playerID].name + ' ' + suit;
+  G.bids[ctx.playerID].name =
+    G.bids[ctx.playerID].name + ' ' + getSuitSymbol(suit);
   ctx.events.setActivePlayers({ all: 'discard', moveLimit: 1 });
+}
+
+function getSuitSymbol(suit) {
+  let symbols = {
+    Spades: '&spades;',
+    Hearts: '&hearts;',
+    Diamonds: '&diams;',
+    Clubs: '&clubs;',
+  };
+  return symbols[suit];
 }
 
 function Discard(G, ctx, discardIds) {
@@ -135,12 +165,29 @@ function PlayCard(G, ctx, cardId) {
   if (!G.leadSuit) G.leadSuit = G.players[ctx.playerID].hand[cardId].suit;
   G.trick[ctx.playerID] = G.players[ctx.playerID].hand[cardId];
   G.players[ctx.playerID].hand[cardId] = null;
+  ctx.events.endTurn();
   if (Object.keys(G.trick).length >= 4) {
-    let trickWinner = getTrickWinner(G);
-    for (let key in Object.keys(G.trick)) {
-      G.tricks[trickWinner].push(G.trick[key]);
-    }
-    G.trick = {};
+    let trickWinnerId = getTrickWinner(G);
+    ctx.events.setActivePlayers({
+      value: {
+        [G.trickWinnerId]: { stage: 'clearTrick' },
+      },
+    });
+  }
+}
+
+function ClearTrick(G, ctx) {
+  let teamTrickWinner = G.trickWinnerId % 2;
+  for (let key in Object.keys(G.trick)) {
+    G.tricks[teamTrickWinner].push(G.trick[key]);
+  }
+  G.trick = {};
+  G.playRound = G.playRound + 1;
+  if (G.playRound > 6) {
+    G.dealerId = G.dealerId + 1;
+    ctx.events.endPhase();
+  } else {
+    ctx.events.endStage();
   }
 }
 
@@ -179,7 +226,18 @@ function getTrickWinner(G) {
 
     console.log(key + ': ' + cardValue + ' : ' + winnerId);
   }
-  return winnerId % 2;
+  G.trickWinnerId = winnerId;
+  return winnerId;
+}
+
+function getNextPlayTurn(G, ctx) {
+  if (
+    (!Object.keys(G.trick).length || Object.keys(G.trick).length > 3) &&
+    G.trickWinnerId
+  ) {
+    return Number(G.trickWinnerId);
+  }
+  return (ctx.playOrderPos + 1) % ctx.numPlayers;
 }
 
 function isBiddingDone(G) {
